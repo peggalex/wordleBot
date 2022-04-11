@@ -64,7 +64,7 @@ def testWord() -> int or None:
 
     allWords = getWords()
     wordFreqs = getNormalizedWordFreqs(allWords)
-    noGuesses = wordleBot(getGuessResult, allWords, wordFreqs)
+    noGuesses = wordleBot(getGuessResult, allWords, wordFreqs, True)
     return noGuesses
 
 

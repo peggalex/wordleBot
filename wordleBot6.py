@@ -108,7 +108,9 @@ def getNextGuess(_domains: list[set[str]], _mustHavesCount: dict[str, int], curr
     )
 
 
-def wordleBot(getGuessResult: Callable[[str], WordleGuessResult], allWords, wordFreqs) -> int:
+def wordleBot(getGuessResult: Callable[[str], WordleGuessResult], allWords, wordFreqs, debugging=False) -> int:
+    global DEBUGGING
+    DEBUGGING = debugging
 
     mustHavesCount: dict[str, int] = {}
     domains: Domains = [set(LETTERS) for _ in range(5)]
@@ -167,7 +169,7 @@ def testWord(args, shouldLog=False) -> int or None:
         print("done:", i)
     log("\ntrue ans:", wordle)
     noGuesses = wordleBot(getGuessResultFunc(
-        wordle, shouldLog), allWords, wordFreqs)
+        wordle, shouldLog), allWords, wordFreqs, shouldLog)
     if noGuesses == None:
         print("!!! failed to guess:", wordle)
     else:
@@ -214,7 +216,6 @@ def testPrevWordles():
 
 
 if __name__ == "__main__":
-    '''DEBUGGING = True
     allWords = getWords()
-    testWord(('stair', 0, allWords, getNormalizedWordFreqs(allWords)), True)'''
-    testPrevWordles()
+    testWord(('stair', 0, allWords, getNormalizedWordFreqs(allWords)), True)
+    # testPrevWordles()

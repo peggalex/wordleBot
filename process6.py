@@ -2,7 +2,7 @@ import time
 from utilities import LETTERS, Domains, getNormalizedWordFreqs, getWords
 from concurrent.futures import ProcessPoolExecutor
 
-from wordleBot6 import yogabagaba
+from wordleBot6 import getAvgNoValidGuesses
 
 
 def getBestWordleWords():
@@ -23,7 +23,7 @@ def getBestWordleWords():
             start = time.perf_counter()
 
             batchValidGuesses = list(ex.map(
-                yogabagaba,
+                getAvgNoValidGuesses,
                 [(guessWord, domains, mustHavesCount, allWords, wordFreqs)
                     for guessWord in batchWords]
             ))

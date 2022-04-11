@@ -20,7 +20,7 @@ def getWordWeight(word: str, wordFreqs: dict[str, float]):
     return wordFreqs.get(word, MIN_WEIGHT/2)
 
 
-def yogabagaba(args) -> float:
+def getAvgNoValidGuesses(args) -> float:
 
     guessWord, _domains, _mustHavesCount, currentWords, wordFreqs = args
     validGuessesCache = {}
@@ -70,7 +70,7 @@ def yogabagaba(args) -> float:
     return (weightedTotal / len(currentWords), isUselessWord, guessStr)
 
 
-def gabyobayoba(_domains: list[set[str]], _mustHavesCount: dict[str, int], currentWords: list[str], allWords: list[str], wordFreqs) -> float:
+def getNextGuess(_domains: list[set[str]], _mustHavesCount: dict[str, int], currentWords: list[str], allWords: list[str], wordFreqs) -> float:
 
     log(f'all words length: {len(allWords)} | current words length: {len(currentWords)}')
     avgGuesses: dict[str, int] = {}
@@ -82,7 +82,7 @@ def gabyobayoba(_domains: list[set[str]], _mustHavesCount: dict[str, int], curre
     for i in range(len(allWords)):
         guessWord = allWords[i]
 
-        avgGuess, isUseless, guessStr = yogabagaba(
+        avgGuess, isUseless, guessStr = getAvgNoValidGuesses(
             (guessWord, _domains, _mustHavesCount, currentWords, wordFreqs))
 
         if isUseless or guessStr in checkedGuessStrs:
@@ -130,8 +130,8 @@ def wordleBot(getGuessResult: Callable[[str], WordleGuessResult], allWords, word
         if len(currentWords) == 1:
             word = currentWords[0]
         else:
-            word = gabyobayoba(domains, mustHavesCount,
-                               currentWords, allUsefulWords, wordFreqs) if 1 < guessNo else starterWord
+            word = getNextGuess(domains, mustHavesCount,
+                                currentWords, allUsefulWords, wordFreqs) if 1 < guessNo else starterWord
 
         log(f"{guessNo}. guessing: {word}")
         prevGuesses.append(word)

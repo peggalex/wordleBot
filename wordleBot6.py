@@ -17,7 +17,7 @@ starterWord = "lares"  # hardcoded, found from process6.py
 
 
 def getWordWeight(word: str, wordFreqs: dict[str, float]):
-    return wordFreqs.get(word, MIN_WEIGHT/2)
+    return wordFreqs.get(word, MIN_WEIGHT/100)
 
 
 def getAvgNoValidGuesses(args) -> float:
@@ -25,7 +25,10 @@ def getAvgNoValidGuesses(args) -> float:
     guessWord, _domains, _mustHavesCount, currentWords, wordFreqs = args
     validGuessesCache = {}
 
+    maxScore = None
+
     def process(wordleWord: str):
+        nonlocal maxScore
 
         guessResult = getGuessResultFunc(
             wordleWord)(guessWord)
@@ -42,17 +45,21 @@ def getAvgNoValidGuesses(args) -> float:
                           domains, mustHavesCount)
 
             noGuess = 0
+            score = 0
             for word in currentWords:
 
                 if isValidGuess(word, domains, mustHavesCount):
-
                     noGuess += 1
+                    score += getWordWeight(word, wordFreqs)
 
             if noGuess == 0:
                 raise Exception(
                     f'no guesses | domains - old: {_domains}, new: {domains} | mustHavesCount - old: {_mustHavesCount}, new: {mustHavesCount}')
 
-            validGuessesCache[guessResultStr] = noGuess
+            if noGuess == len(currentWords):
+                maxScore = score
+
+            validGuessesCache[guessResultStr] = score
 
         return validGuessesCache[guessResultStr], guessResultStr
 
@@ -64,7 +71,7 @@ def getAvgNoValidGuesses(args) -> float:
         wordleWord = currentWords[i]
         noValidGuesses, guessResultStr = process(wordleWord)
         weightedTotal += noValidGuesses * getWordWeight(wordleWord, wordFreqs)
-        isUselessWord = isUselessWord and (noValidGuesses == len(currentWords))
+        isUselessWord = isUselessWord and (noValidGuesses == maxScore)
         guessStr += guessResultStr
 
     return (weightedTotal / len(currentWords), isUselessWord, guessStr)
@@ -204,7 +211,7 @@ def testPrevWordles():
 
             end = time.perf_counter()
             print(
-                f"\t{i+step}/{len(wordles)} | time: {end-totalStart:.1f} secs | since last: {end-start:.1f}")
+                f"\t{i+step}/{len(wordles)} | time: {end-totalStart:.1f} secs | since last: {end-start:.1f} | avg so far {sum(noGuessesLst)/len(noGuessesLst):.4f}")
 
         guessesDist = {}
         for noGuesses in noGuessesLst:
@@ -216,6 +223,7 @@ def testPrevWordles():
 
 
 if __name__ == "__main__":
-    allWords = getWords()
-    testWord(('stair', 0, allWords, getNormalizedWordFreqs(allWords)), True)
-    # testPrevWordles()
+    # hard examples: gazes, mumps
+    '''allWords = getWords()
+    testWord(('mumps', 0, allWords, getNormalizedWordFreqs(allWords)), True)'''
+    testPrevWordles()

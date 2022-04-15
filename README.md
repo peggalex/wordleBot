@@ -1,6 +1,6 @@
 # wordleBot
 
-Average guesses against all 2309 wordle words: 3.86
+Average guesses against all 2309 wordle words: 3.71
 
 Win rate: 100%
 

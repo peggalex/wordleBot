@@ -18,11 +18,18 @@ def getBestWordleWords():
 
     validGuesses = []
     for i in range(0, len(allWords), batchSize):
+        if i % (batchSize * 5) == 0 and 0 < len(validGuesses):
+            _start = time.perf_counter()
+            _wordToNoGuesses = {allWords[i]: validGuesses[i]
+                                for i in range(len(validGuesses))}
+            _end = time.perf_counter()
+            print(
+                f'best word: {min(_wordToNoGuesses, key=lambda w: _wordToNoGuesses[w])} | time: {_end-_start:.1f}')
         batchWords = allWords[i:i+batchSize]
         with ProcessPoolExecutor() as ex:
             start = time.perf_counter()
 
-            batchValidGuesses = list(ex.map(
+            batchValidGuesses = list(x[0] for x in ex.map(
                 getAvgNoValidGuesses,
                 [(guessWord, domains, mustHavesCount, allWords, wordFreqs)
                     for guessWord in batchWords]
@@ -37,7 +44,7 @@ def getBestWordleWords():
     wordToNoGuesses = {allWords[i]: validGuesses[i]
                        for i in range(len(allWords))}
     sortedWords = sorted(wordToNoGuesses, key=lambda w: wordToNoGuesses[w])
-    print(f'best words: {sortedWords[:5]}')
+    print(f'best words: {({w:wordToNoGuesses[w] for w in sortedWords[:5]})}')
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 import time
-from utilities import LETTERS, MIN_WEIGHT, WORDLEPREVANSWERS_FILENAME, Domains, getGuessResultFunc, getNormalizedWordFreqs, getWords, WordleLetter, WordleGuessResult, isValidGuess, updateDomains
+from utilities import LETTERS, MIN_WEIGHT, WORDLEPREVANSWERS_FILENAME, Domains, didGuessWord, getGuessResultFunc, getNormalizedWordFreqs, getWords, WordleLetter, WordleGuessResult, isValidGuess, updateDomains
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 
@@ -17,7 +17,7 @@ starterWord = "lares"  # hardcoded, found from process6.py
 
 
 def getWordWeight(word: str, wordFreqs: dict[str, float]):
-    return wordFreqs.get(word, MIN_WEIGHT/100)
+    return wordFreqs.get(word, MIN_WEIGHT/1000000)
 
 
 def getAvgNoValidGuesses(args) -> float:
@@ -38,26 +38,29 @@ def getAvgNoValidGuesses(args) -> float:
 
         if guessResultStr not in validGuessesCache:
 
-            domains: Domains = [set(d) for d in _domains]
-            mustHavesCount: dict[str, int] = {**_mustHavesCount}
-
-            updateDomains(guessWord, guessResult,
-                          domains, mustHavesCount)
-
-            noGuess = 0
             score = 0
-            for word in currentWords:
+            if didGuessWord(guessResult):
+                score = -1
+            else:
+                noGuess = 0
+                domains: Domains = [set(d) for d in _domains]
+                mustHavesCount: dict[str, int] = {**_mustHavesCount}
 
-                if isValidGuess(word, domains, mustHavesCount):
-                    noGuess += 1
-                    score += getWordWeight(word, wordFreqs)
+                updateDomains(guessWord, guessResult,
+                              domains, mustHavesCount)
 
-            if noGuess == 0:
-                raise Exception(
-                    f'no guesses | domains - old: {_domains}, new: {domains} | mustHavesCount - old: {_mustHavesCount}, new: {mustHavesCount}')
+                for word in currentWords:
 
-            if noGuess == len(currentWords):
-                maxScore = score
+                    if isValidGuess(word, domains, mustHavesCount):
+                        noGuess += 1
+                        score += getWordWeight(word, wordFreqs)
+
+                if noGuess == 0:
+                    raise Exception(
+                        f'no guesses | domains - old: {_domains}, new: {domains} | mustHavesCount - old: {_mustHavesCount}, new: {mustHavesCount}')
+
+                if noGuess == len(currentWords):
+                    maxScore = score
 
             validGuessesCache[guessResultStr] = score
 
@@ -225,5 +228,5 @@ def testPrevWordles():
 if __name__ == "__main__":
     # hard examples: gazes, mumps
     '''allWords = getWords()
-    testWord(('mumps', 0, allWords, getNormalizedWordFreqs(allWords)), True)'''
+    testWord(('squad', 0, allWords, getNormalizedWordFreqs(allWords)), True)'''
     testPrevWordles()

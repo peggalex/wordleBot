@@ -55,8 +55,8 @@ def getNormalizedWordFreqs(words: list[str]) -> dict[str, float]:
     for word, freq in wordFreq.items():
         logFreq = math.log(freq, base)
         normalizedLogFreq = logFreq/logMaxWordFreq
-        normalizedLogFreqWithMin = normalizedLogFreq * \
-            (1-MIN_WEIGHT) + MIN_WEIGHT
+        normalizedLogFreqWithMin = (
+            normalizedLogFreq * (1-MIN_WEIGHT)) + MIN_WEIGHT
         wordFreq[word] = normalizedLogFreqWithMin
 
     '''plt.hist(wordFreq.values(), 50, density=True, facecolor='r', alpha=0.75)
@@ -170,3 +170,11 @@ def isValidGuess(word: str, domains: Domains, mustHavesCount: dict[str, int]):
                 mustHave, count) in mustHavesCount.items())
         )
     return all(letter in domain for letter, domain in zip(word, domains))
+
+
+def didGuessWord(guessResult: WordleGuessResult):
+    return all(wordleLetter == WordleLetter.GREEN for wordleLetter in guessResult)
+
+
+def avg(lst: list[float or int]) -> float:
+    return sum(lst)/len(lst)
